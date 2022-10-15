@@ -2,10 +2,15 @@
 
 import axios from 'axios';
 
-// const perPage = 12;
+const perPage = 12;
 const imageType = 'photo';
 const orientation = 'horizontal';
 
-axios.defaults.baseURL = `https://pixabay.com/api/?&key=29520671-c96ba25b52e4cbbca2f07c463&image_type=${imageType}&orientation=${orientation}`;
+axios.defaults.baseURL = `https://pixabay.com/api/`;
 
-export const searchImage = () => {};
+export const searchImage = async query => {
+  const response = await axios.get(
+    `?q=${query}&page=1&key=29520671-c96ba25b52e4cbbca2f07c463&image_type=${imageType}&orientation=${orientation}&per_page=${perPage}`
+  );
+  return response.data;
+};

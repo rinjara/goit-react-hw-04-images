@@ -1,26 +1,46 @@
-import { Field, Form, Formik } from 'formik';
+import { Formik } from 'formik';
 import PropTypes from 'prop-types';
+import {
+  StyledSearchbar,
+  StyledForm,
+  SearchFormButton,
+  StyledField,
+} from './Searchbar.styled';
+import { toast } from 'react-toastify';
+import { MdImageSearch } from 'react-icons/md';
 
 export const Searchbar = ({ onSubmit }) => {
+  const handleSubmit = async (value, actions) => {
+    if (value.query.trim() === '') {
+      toast.error('You need to enter something to start searching!');
+      return;
+    }
+    await onSubmit(value);
+    actions.setSubmitting(false);
+    actions.resetForm();
+  };
   return (
-    <header className="searchbar">
-      <Formik initialValues={{ query: '' }} onSubmit={onSubmit}>
-        <Form className="form">
-          <button type="submit" className="button">
-            <span className="button-label">Search</span>
-          </button>
+    <StyledSearchbar>
+      <Formik initialValues={{ query: '' }} onSubmit={handleSubmit}>
+        {({ isSubmitting }) => {
+          return (
+            <StyledForm>
+              <SearchFormButton type="submit" disabled={isSubmitting}>
+                <MdImageSearch size="2em" />
+              </SearchFormButton>
 
-          <Field
-            className="input"
-            type="text"
-            name="query"
-            autoComplete="off"
-            autoFocus
-            placeholder="Search images and photos"
-          />
-        </Form>
+              <StyledField
+                type="text"
+                name="query"
+                autoComplete="off"
+                autoFocus
+                placeholder="Search images and photos"
+              />
+            </StyledForm>
+          );
+        }}
       </Formik>
-    </header>
+    </StyledSearchbar>
   );
 };
 

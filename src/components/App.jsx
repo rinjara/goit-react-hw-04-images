@@ -1,37 +1,55 @@
 import { Component } from 'react';
 import { Searchbar } from './Searchbar/Searchbar';
+import { ImageGallery } from './ImageGallery/ImageGallery';
+import { ToastNotifications } from './Notifications/Notifications';
+import { AppBox } from './App.styled';
 
-import { Hearts } from 'react-loader-spinner';
+// import { searchImage } from 'api/searchApi';
+// import { Loader } from './Loader/Loader';
+// import { Button } from './Button/Button';
 
 export class App extends Component {
   state = {
-    page: 1,
-    images: [],
     query: '',
-    status: 'idle',
-    error: null,
+    page: 1,
+    // images: [],
+    // error: null,
+    // status: 'idle',
   };
 
-  handleSearchSubmit = (value, { resetForm }) => {
-    console.log(value);
-    this.setState({ query: value });
-    resetForm();
+  // componentDidUpdate(prevProps, _) {
+  // if (prevProps.query !== this.state.query) {
+  // this.setState({ status: 'pending', page: 1 });
+  // }
+  // }
+
+  // fetchImages = query => {
+  //   searchImage(query)
+  //     .then(images =>
+  //       this.setState({ images: images.hits, status: 'resolved' })
+  //     )
+  //     .catch(error => this.setState({ error, status: 'rejected' }));
+  // };
+
+  handleSearchSubmit = value => {
+    this.setState({ query: value.query });
+    // this.fetchImages(value.query);
+
+    // const data = await searchImage(value);
+    // console.log(data);
+    // this.setState(state => ({
+    //   images: [...state.images, ...data.hits],
+    // }));
+    // resetForm();
   };
 
   render() {
     return (
-      <div>
+      <AppBox>
         <Searchbar onSubmit={this.handleSearchSubmit} />
-        <Hearts
-          height="80"
-          width="80"
-          color="#4fa94d"
-          ariaLabel="hearts-loading"
-          wrapperStyle={{}}
-          wrapperClass=""
-          visible={true}
-        />
-      </div>
+        <ToastNotifications />
+        <ImageGallery imageQuery={this.state.query} />
+      </AppBox>
     );
   }
 }
