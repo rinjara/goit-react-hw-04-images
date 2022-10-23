@@ -15,10 +15,11 @@ export const Searchbar = ({ onSubmit }) => {
       toast.error('You need to enter something to start searching!');
       return;
     }
-    await onSubmit(value);
+    await onSubmit(value.query);
     actions.setSubmitting(false);
     actions.resetForm();
   };
+
   return (
     <StyledSearchbar>
       <Formik initialValues={{ query: '' }} onSubmit={handleSubmit}>

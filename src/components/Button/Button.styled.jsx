@@ -1,7 +1,13 @@
 import styled from 'styled-components';
 
-export const LoadMore = styled.button`
+export const ButtonWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
+export const StyledButton = styled.button`
   padding: 8px 16px;
+  width: 200px;
   border-radius: 2px;
   background-color: #3f51b5;
   transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);

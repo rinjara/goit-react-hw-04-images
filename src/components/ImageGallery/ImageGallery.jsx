@@ -1,54 +1,80 @@
-import { searchImage } from 'api/searchApi';
-import { Button } from 'components/Button/Button';
-import { Loader } from 'components/Loader/Loader';
 import { Component } from 'react';
 import { toast } from 'react-toastify';
+import { searchImage } from 'api/searchApi';
+import { Loader } from 'components/Loader/Loader';
 import { Gallery } from './ImageGallery.styled';
 import { ImageGalleryItem } from './ImageGalleryItem';
 
 export class ImageGallery extends Component {
   state = {
-    page: 1,
     images: [],
+    modalImg: '',
+    isLoader: false,
+    isModal: false,
     error: null,
-    status: 'idle',
   };
 
-  componentDidUpdate(prevProps, _) {
-    if (prevProps.imageQuery !== this.props.imageQuery) {
-      this.setState({ status: 'pending', page: 1 });
-      searchImage(this.props.imageQuery)
-        .then(images =>
-          this.setState({ images: images.hits, status: 'resolved' })
-        )
-        .catch(error => this.setState({ error, status: 'rejected' }));
+  async componentDidUpdate(prevProps, _) {
+    const { imageQuery, page, onLoad, offLoad } = this.props;
+
+    if (prevProps.imageQuery !== imageQuery) {
+      this.setState({ isLoader: true, images: [] });
+      try {
+        const response = await searchImage(imageQuery, page);
+        this.setState({ images: response.hits, isLoader: false });
+
+        if (!response.hits.length) {
+          offLoad();
+          toast.error(`There is no "${imageQuery}" images.`);
+        }
+        if (response.hits.length < 12) {
+          offLoad();
+        } else {
+          onLoad();
+        }
+      } catch (error) {
+        this.setState({ error, isLoader: false });
+        toast.error(
+          `Ups! Something is wrong :( ${error.message} Try again later!`
+        );
+      }
+    }
+
+    if (prevProps.imageQuery === imageQuery && prevProps.page !== page) {
+      this.setState({ isLoader: true });
+      try {
+        const response = await searchImage(imageQuery, page);
+        this.setState(prevState => ({
+          images: [...prevState.images, ...response.hits],
+          isLoader: false,
+        }));
+        if (!response.hits.length || response.hits.length < 12) {
+          offLoad();
+          toast('There is no more images');
+        } else {
+          onLoad();
+        }
+      } catch (error) {
+        this.setState({ error, isLoader: false });
+        toast.error(
+          `Ups! Something is wrong :( ${error.message} Try again later!`
+        );
+      }
     }
   }
 
   render() {
-    const { images, error, status } = this.state;
+    const { images, isLoader } = this.state;
+    return (
+      <>
+        <Gallery className="gallery">
+          {images.map(image => (
+            <ImageGalleryItem key={image.id} data={image} />
+          ))}
+        </Gallery>
 
-    if (status === 'pending') {
-      return <Loader />;
-    }
-
-    if (status === 'rejected') {
-      return toast.error(
-        `Something wrong! :( Please, try again later. ${error.message}`
-      );
-    }
-
-    if (status === 'resolved') {
-      return (
-        <>
-          <Gallery className="gallery">
-            {images.map(image => (
-              <ImageGalleryItem key={image.id} data={image} />
-            ))}
-          </Gallery>
-          <Button />
-        </>
-      );
-    }
+        {isLoader && <Loader />}
+      </>
+    );
   }
 }
