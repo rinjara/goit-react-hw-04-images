@@ -4,12 +4,14 @@ import { ImageGallery } from './ImageGallery/ImageGallery';
 import { ToastNotifications } from './Notifications/Notifications';
 import { AppBox } from './App.styled';
 import { Button } from './Button/Button';
+import { Modal } from './Modal/Modal';
 
 export class App extends Component {
   state = {
     query: '',
     page: 1,
     loadMore: false,
+    modalImg: null,
   };
 
   handleSearchSubmit = value => {
@@ -30,10 +32,24 @@ export class App extends Component {
     this.setState({ loadMore: false });
   };
 
+  setModalImg = image => {
+    this.setState({ modalImg: image });
+  };
+
+  clearModalImg = () => {
+    this.setState({ modalImg: null });
+  };
+
   render() {
-    const { query, page, loadMore } = this.state;
-    const { handleSearchSubmit, handleButtonClick, onLoadMore, offLoadMore } =
-      this;
+    const { query, page, loadMore, modalImg } = this.state;
+    const {
+      handleSearchSubmit,
+      handleButtonClick,
+      onLoadMore,
+      offLoadMore,
+      setModalImg,
+      clearModalImg,
+    } = this;
 
     return (
       <AppBox>
@@ -46,9 +62,12 @@ export class App extends Component {
           page={page}
           onLoad={onLoadMore}
           offLoad={offLoadMore}
+          onImgClick={setModalImg}
         />
 
         {loadMore && <Button onClick={handleButtonClick}>Load more</Button>}
+
+        {modalImg && <Modal modalImg={modalImg} onClose={clearModalImg} />}
       </AppBox>
     );
   }

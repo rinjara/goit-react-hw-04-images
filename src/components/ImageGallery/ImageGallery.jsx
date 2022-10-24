@@ -8,9 +8,9 @@ import { ImageGalleryItem } from './ImageGalleryItem';
 export class ImageGallery extends Component {
   state = {
     images: [],
-    modalImg: '',
+    // modalImg: '',
     isLoader: false,
-    isModal: false,
+    // isModal: false,
     error: null,
   };
 
@@ -69,7 +69,11 @@ export class ImageGallery extends Component {
       <>
         <Gallery className="gallery">
           {images.map(image => (
-            <ImageGalleryItem key={image.id} data={image} />
+            <ImageGalleryItem
+              key={image.id}
+              data={image}
+              onImgClick={this.props.onImgClick}
+            />
           ))}
         </Gallery>
 
