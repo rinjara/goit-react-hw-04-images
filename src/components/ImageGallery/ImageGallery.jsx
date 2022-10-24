@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 import { searchImage } from 'api/searchApi';
 import { Loader } from 'components/Loader/Loader';
@@ -8,9 +9,7 @@ import { ImageGalleryItem } from './ImageGalleryItem';
 export class ImageGallery extends Component {
   state = {
     images: [],
-    // modalImg: '',
     isLoader: false,
-    // isModal: false,
     error: null,
   };
 
@@ -65,6 +64,7 @@ export class ImageGallery extends Component {
 
   render() {
     const { images, isLoader } = this.state;
+    const { onImgClick } = this.props;
     return (
       <>
         <Gallery className="gallery">
@@ -72,7 +72,7 @@ export class ImageGallery extends Component {
             <ImageGalleryItem
               key={image.id}
               data={image}
-              onImgClick={this.props.onImgClick}
+              onImgClick={onImgClick}
             />
           ))}
         </Gallery>
@@ -82,3 +82,11 @@ export class ImageGallery extends Component {
     );
   }
 }
+
+ImageGallery.propTypes = {
+  imageQuery: PropTypes.string.isRequired,
+  page: PropTypes.number.isRequired,
+  onLoad: PropTypes.func.isRequired,
+  offLoad: PropTypes.func.isRequired,
+  onImgClick: PropTypes.func.isRequired,
+};
