@@ -16,38 +16,21 @@ export class ImageGallery extends Component {
   async componentDidUpdate(prevProps, _) {
     const { imageQuery, page, onLoad, offLoad } = this.props;
 
-    if (prevProps.imageQuery !== imageQuery) {
-      this.setState({ isLoader: true, images: [] });
-      try {
-        const response = await searchImage(imageQuery, page);
-        this.setState({ images: response.hits, isLoader: false });
-
-        if (!response.hits.length) {
-          offLoad();
-          toast.error(`There is no "${imageQuery}" images.`);
-        }
-        if (response.hits.length < 12) {
-          offLoad();
-        } else {
-          onLoad();
-        }
-      } catch (error) {
-        this.setState({ error, isLoader: false });
-        toast.error(
-          `Ups! Something is wrong :( ${error.message} Try again later!`
-        );
-      }
-    }
-
-    if (prevProps.imageQuery === imageQuery && prevProps.page !== page) {
-      this.setState({ isLoader: true });
+    if (prevProps.imageQuery !== imageQuery || prevProps.page !== page) {
+      prevProps.imageQuery !== imageQuery
+        ? this.setState({ isLoader: true, images: [] })
+        : this.setState({ isLoader: true });
       try {
         const response = await searchImage(imageQuery, page);
         this.setState(prevState => ({
           images: [...prevState.images, ...response.hits],
           isLoader: false,
         }));
-        if (!response.hits.length || response.hits.length < 12) {
+
+        if (!response.hits.length) {
+          offLoad();
+          toast.error(`There is no "${imageQuery}" images.`);
+        } else if (response.hits.length < 12 && response.hits.length > 0) {
           offLoad();
           toast('There is no more images');
         } else {
