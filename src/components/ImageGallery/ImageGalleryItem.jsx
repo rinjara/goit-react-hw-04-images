@@ -1,16 +1,24 @@
+import { Modal } from 'components/Modal/Modal';
 import PropTypes from 'prop-types';
+import { useState } from 'react';
 import { GalleryImg, GalleryItem } from './ImageGallery.styled';
 
-export const ImageGalleryItem = ({ data, onImgClick }) => {
+export const ImageGalleryItem = ({ data }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { webformatURL, tags, largeImageURL } = data;
+
   return (
     <GalleryItem>
       <GalleryImg
-        src={data.webformatURL}
-        alt={data.tags}
+        src={webformatURL}
+        alt={tags}
         onClick={() => {
-          onImgClick(data.largeImageURL);
+          setIsModalOpen(true);
         }}
       />
+      {isModalOpen && (
+        <Modal modalImg={largeImageURL} onClose={() => setIsModalOpen(false)} />
+      )}
     </GalleryItem>
   );
 };
@@ -21,5 +29,4 @@ ImageGalleryItem.propTypes = {
     tags: PropTypes.string.isRequired,
     largeImageURL: PropTypes.string.isRequired,
   }),
-  onImgClick: PropTypes.func.isRequired,
 };

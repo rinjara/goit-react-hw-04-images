@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 import { searchImage } from 'api/searchApi';
@@ -6,26 +6,29 @@ import { Loader } from 'components/Loader/Loader';
 import { Gallery } from './ImageGallery.styled';
 import { ImageGalleryItem } from './ImageGalleryItem';
 
-export class ImageGallery extends Component {
-  state = {
-    images: [],
-    isLoader: false,
-    error: null,
-  };
+export const ImageGallery = ({ imageQuery, page, onLoad, offLoad }) => {
+  const [images, setImages] = useState([]);
+  const [isLoader, setIsLoader] = useState(false);
+  const [errorState, setErrorState] = useState(null);
 
-  async componentDidUpdate(prevProps, _) {
-    const { imageQuery, page, onLoad, offLoad } = this.props;
+  useEffect(() => {
+    setImages([]);
+  }, [imageQuery]);
 
-    if (prevProps.imageQuery !== imageQuery || prevProps.page !== page) {
-      prevProps.imageQuery !== imageQuery
-        ? this.setState({ isLoader: true, images: [] })
-        : this.setState({ isLoader: true });
+  useEffect(() => {
+    if (!imageQuery) {
+      return;
+    }
+
+    (async () => {
+      setIsLoader(true);
+
       try {
         const response = await searchImage(imageQuery, page);
-        this.setState(prevState => ({
-          images: [...prevState.images, ...response.hits],
-          isLoader: false,
-        }));
+
+        page === 1
+          ? setImages(response.hits)
+          : setImages(state => [...state, ...response.hits]);
 
         if (!response.hits.length) {
           offLoad();
@@ -37,39 +40,32 @@ export class ImageGallery extends Component {
           onLoad();
         }
       } catch (error) {
-        this.setState({ error, isLoader: false });
+        setErrorState(error.message);
         toast.error(
-          `Ups! Something is wrong :( ${error.message} Try again later!`
+          `Ups! Something is wrong :( ${errorState} Try again later!`
         );
+      } finally {
+        setIsLoader(false);
       }
-    }
-  }
+    })();
+  }, [errorState, imageQuery, offLoad, onLoad, page]);
 
-  render() {
-    const { images, isLoader } = this.state;
-    const { onImgClick } = this.props;
-    return (
-      <>
-        <Gallery className="gallery">
-          {images.map(image => (
-            <ImageGalleryItem
-              key={image.id}
-              data={image}
-              onImgClick={onImgClick}
-            />
-          ))}
-        </Gallery>
+  return (
+    <>
+      <Gallery className="gallery">
+        {images.map(image => (
+          <ImageGalleryItem key={image.id} data={image} />
+        ))}
+      </Gallery>
 
-        {isLoader && <Loader />}
-      </>
-    );
-  }
-}
+      {isLoader && <Loader />}
+    </>
+  );
+};
 
 ImageGallery.propTypes = {
   imageQuery: PropTypes.string.isRequired,
   page: PropTypes.number.isRequired,
   onLoad: PropTypes.func.isRequired,
   offLoad: PropTypes.func.isRequired,
-  onImgClick: PropTypes.func.isRequired,
 };

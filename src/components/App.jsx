@@ -1,74 +1,38 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import { Searchbar } from './Searchbar/Searchbar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { ToastNotifications } from './Notifications/Notifications';
 import { AppBox } from './App.styled';
 import { Button } from './Button/Button';
-import { Modal } from './Modal/Modal';
 
-export class App extends Component {
-  state = {
-    query: '',
-    page: 1,
-    loadMore: false,
-    modalImg: null,
+export const App = () => {
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [loadMore, setLoadMore] = useState(false);
+
+  const handleSearchSubmit = value => {
+    setQuery(value);
+    setPage(1);
   };
 
-  handleSearchSubmit = value => {
-    this.setState({ query: value, page: 1 });
+  const handleButtonClick = () => {
+    setPage(state => state + 1);
   };
 
-  handleButtonClick = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
-  };
+  return (
+    <AppBox>
+      <Searchbar onSubmit={handleSearchSubmit} />
 
-  onLoadMore = () => {
-    this.setState({ loadMore: true });
-  };
+      <ToastNotifications />
 
-  offLoadMore = () => {
-    this.setState({ loadMore: false });
-  };
+      <ImageGallery
+        imageQuery={query}
+        page={page}
+        onLoad={() => setLoadMore(true)}
+        offLoad={() => setLoadMore(false)}
+      />
 
-  setModalImg = image => {
-    this.setState({ modalImg: image });
-  };
-
-  clearModalImg = () => {
-    this.setState({ modalImg: null });
-  };
-
-  render() {
-    const { query, page, loadMore, modalImg } = this.state;
-    const {
-      handleSearchSubmit,
-      handleButtonClick,
-      onLoadMore,
-      offLoadMore,
-      setModalImg,
-      clearModalImg,
-    } = this;
-
-    return (
-      <AppBox>
-        <Searchbar onSubmit={handleSearchSubmit} />
-
-        <ToastNotifications />
-
-        <ImageGallery
-          imageQuery={query}
-          page={page}
-          onLoad={onLoadMore}
-          offLoad={offLoadMore}
-          onImgClick={setModalImg}
-        />
-
-        {loadMore && <Button onClick={handleButtonClick}>Load more</Button>}
-
-        {modalImg && <Modal modalImg={modalImg} onClose={clearModalImg} />}
-      </AppBox>
-    );
-  }
-}
+      {loadMore && <Button onClick={handleButtonClick}>Load more</Button>}
+    </AppBox>
+  );
+};
